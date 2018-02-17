@@ -24,6 +24,9 @@ class EvaluationTVC: UITableViewController {
     @IBOutlet weak var txtSiteZipCode: UITextField!
     @IBOutlet weak var txtSiteTelephone: UITextField!
     
+    @IBAction func btnNavigationDone(_ sender: Any) {
+        self.navigationController?.popViewController(animated: true)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,7 +37,7 @@ class EvaluationTVC: UITableViewController {
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
         
-        lblReviewDate.text? += " \(NSDate())"
+        lblReviewDate.text? = "\(NSDate())"
         lblReviewer.text? = "Anthony Shewnarain"
         lblReviewStatus.text? = "APPROVED"
         lblReviewFollowUp.text? = "NOT REQUIRED"
