@@ -15,6 +15,9 @@ class EvaluationTVC: UITableViewController {
     @IBOutlet weak var lblReviewStatus: UILabel!
     @IBOutlet weak var lblReviewFollowUp: UILabel!
     @IBOutlet weak var textViewReview: UITextView!
+    
+    @IBOutlet weak var collectionViewPhotos: UICollectionView!
+    
     @IBOutlet weak var txtSiteName: UITextField!
     @IBOutlet weak var txtSiteCategory: UITextField!
     @IBOutlet weak var txtSiteAddressLine1: UITextField!
@@ -24,26 +27,47 @@ class EvaluationTVC: UITableViewController {
     @IBOutlet weak var txtSiteZipCode: UITextField!
     @IBOutlet weak var txtSiteTelephone: UITextField!
     
+    @IBOutlet weak var imgViewSignature: UIImageView!
+    
+    var imagePhotos = [UIImage]()
+    
     @IBAction func btnNavigationDone(_ sender: Any) {
         self.navigationController?.popViewController(animated: true)
     }
     
+    @IBAction func btnCameraAction(_ sender: Any) {
+        self.loadImagePickerController()
+    }
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+        collectionViewPhotos.delegate = self
+        collectionViewPhotos.dataSource = self
         
         lblReviewDate.text? = "\(NSDate())"
         lblReviewer.text? = "Anthony Shewnarain"
         lblReviewStatus.text? = "APPROVED"
         lblReviewFollowUp.text? = "NOT REQUIRED"
         textViewReview.text? = "The evaluation was very detailed and thorough. The photos taken were appropriate to visualize the safety parameters. While the form is still a work in progress we will approve this location for the time being."
+        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imgViewSignatureTapped(tapGestureRecognizer:)))
+        imgViewSignature.addGestureRecognizer(tapGestureRecognizer)
     }
-
+    
+    @objc func imgViewSignatureTapped(tapGestureRecognizer: UITapGestureRecognizer)
+    {
+        //let tappedImage = tapGestureRecognizer.view as! UIImageView
+        
+        // Your action
+        //self.navigationController?.pushViewController(signatureVC, animated: true)
+        
+        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let signatureVC = storyBoard.instantiateViewController(withIdentifier: "signatureVC") as! SignatureVC
+        self.present(signatureVC, animated: true, completion: nil)
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
