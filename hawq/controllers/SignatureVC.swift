@@ -12,7 +12,6 @@ class SignatureVC: UIViewController {
 
     private var path = UIBezierPath()
     private var startPoint = CGPoint()
-    //private var touchPoint = CGPoint()
     
     @IBOutlet weak var canvasView: UIView!
     
@@ -21,6 +20,13 @@ class SignatureVC: UIViewController {
     }
     
     @IBAction func saveTapped(_ sender: Any) {
+        let renderer = UIGraphicsImageRenderer(size: view.bounds.size)
+        let image = renderer.image { ctx in
+            view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+        }
+        let signatureData = UIImagePNGRepresentation(image)?.base64EncodedString()
+        //save data here.
+        
         self.dismiss(animated: true, completion: nil)
     }
     
@@ -44,21 +50,13 @@ class SignatureVC: UIViewController {
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch = touches.first
-        //var touchPoint = CGPoint()
         if let point = touch?.location(in: canvasView) {
-            //touchPoint = point
             path.move(to: startPoint)
             path.addLine(to: point)
             startPoint = point
             
             draw()
         }
-        
-//        path.move(to: startPoint)
-//        path.addLine(to: touchPoint)
-//        startPoint = touchPoint
-//
-//        draw()
     }
     
     func draw() {

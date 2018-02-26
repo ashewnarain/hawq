@@ -10,14 +10,15 @@ import UIKit
 
 class EvaluationTVC: UITableViewController {
 
+    // Review
     @IBOutlet weak var lblReviewDate: UILabel!
     @IBOutlet weak var lblReviewer: UILabel!
     @IBOutlet weak var lblReviewStatus: UILabel!
     @IBOutlet weak var lblReviewFollowUp: UILabel!
     @IBOutlet weak var textViewReview: UITextView!
-    
+    // Photos
     @IBOutlet weak var collectionViewPhotos: UICollectionView!
-    
+    // Site
     @IBOutlet weak var txtSiteName: UITextField!
     @IBOutlet weak var txtSiteCategory: UITextField!
     @IBOutlet weak var txtSiteAddressLine1: UITextField!
@@ -26,7 +27,17 @@ class EvaluationTVC: UITableViewController {
     @IBOutlet weak var txtSiteState: UITextField!
     @IBOutlet weak var txtSiteZipCode: UITextField!
     @IBOutlet weak var txtSiteTelephone: UITextField!
-    
+    @IBOutlet weak var txtSiteRepresentative: UITextField!
+    // Survey
+    @IBOutlet weak var segFacilityHazardFree: UISegmentedControl!
+    @IBOutlet weak var segFacilityLighting: UISegmentedControl!
+    @IBOutlet weak var segFacilityClean: UISegmentedControl!
+    @IBOutlet weak var segFacilityVentilation: UISegmentedControl!
+    @IBOutlet weak var segFacilityCofoPosted: UISegmentedControl!
+    @IBOutlet weak var segFacilityEmergencyExits: UISegmentedControl!
+    @IBOutlet weak var segFacilityFireExtinguisher: UISegmentedControl!
+    @IBOutlet weak var segFacilityFireDrills: UISegmentedControl!
+    // Signature
     @IBOutlet weak var imgViewSignature: UIImageView!
     
     var imagePhotos = [UIImage]()
@@ -38,8 +49,6 @@ class EvaluationTVC: UITableViewController {
     @IBAction func btnCameraAction(_ sender: Any) {
         self.loadImagePickerController()
     }
-    
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
