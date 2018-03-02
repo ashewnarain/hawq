@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class EvaluationTVC: UITableViewController {
 
@@ -42,7 +43,25 @@ class EvaluationTVC: UITableViewController {
     
     var imagePhotos = [UIImage]()
     
-    @IBAction func btnNavigationDone(_ sender: Any) {
+    @IBAction func btnDoneTapped(_ sender: Any) {
+        let preAssessment = createEvaluation()
+        var dict = [String: PreAssessment]()
+        dict[preAssessment.type.rawValue] = preAssessment
+        let encodedData = try? JSONEncoder().encode(dict)
+        print("Form data size--> \(encodedData!)")
+        print("JSON value captured--> \(String(data: encodedData!, encoding: .utf8)!)")
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+        let entity = NSEntityDescription.entity(forEntityName: "Evaluation", in: context)
+        
+        let newEvaluation = NSManagedObject(entity: entity!, insertInto: context)
+        newEvaluation.setValue(NSDate(), forKey: "creationDate")
+        newEvaluation.setValue(encodedData, forKey: "form")
+        newEvaluation.setValue(preAssessment.id, forKey: "id")
+        newEvaluation.setValue(preAssessment.status.rawValue, forKey: "status")
+        newEvaluation.setValue(preAssessment.type.rawValue, forKey: "type")
+    
         self.navigationController?.popViewController(animated: true)
     }
     
@@ -82,6 +101,33 @@ class EvaluationTVC: UITableViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    func createEvaluation()->PreAssessment {
+        let evaluator = Person(id: "ashewna", firstName: "Anthony", lastName: "Shewnarain", email: "anthony.shewnarain@gmail.com")
+        let site = Site()
+        site.name = txtSiteName.text
+        site.category = txtSiteCategory.text
+        let address = Address()
+        address.line1 = txtSiteAddressLine1.text
+        address.line2 = txtSiteAddressLine2.text
+        address.city = txtSiteCity.text
+        address.state = txtSiteState.text
+        address.zipCode = txtSiteZipCode.text
+        site.address = address
+        site.primaryNumber = txtSiteTelephone.text
+        let preAssessment = PreAssessment(evaluator: evaluator, site: site)
+        
+        preAssessment.facilityHazardFree = segFacilityHazardFree.selectedSegmentIndex
+        preAssessment.facilityLighting = segFacilityLighting.selectedSegmentIndex
+        preAssessment.facilityClean = segFacilityClean.selectedSegmentIndex
+        preAssessment.facilityVentilation = segFacilityVentilation.selectedSegmentIndex
+        preAssessment.facilityCofoPosted = segFacilityCofoPosted.selectedSegmentIndex
+        preAssessment.facilityEmergencyExits = segFacilityEmergencyExits.selectedSegmentIndex
+        preAssessment.facilityFireExtinguisher = segFacilityFireExtinguisher.selectedSegmentIndex
+        preAssessment.facilityFireDrills = segFacilityFireDrills.selectedSegmentIndex
+        
+        return preAssessment
+    }
+    
     // MARK: - Table view data source
 
 //    override func numberOfSections(in tableView: UITableView) -> Int {

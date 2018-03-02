@@ -718,7 +718,7 @@
                     <navigationItem key="navigationItem" title="Evaluation" id="6l2-IO-jeR">
                         <barButtonItem key="leftBarButtonItem" systemItem="done" id="mFk-gP-4f3">
                             <connections>
-                                <action selector="btnNavigationDone:" destination="CGH-p6-ikU" id="EVL-jg-0PG"/>
+                                <action selector="btnDoneTapped:" destination="CGH-p6-ikU" id="Ndp-O0-gSX"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="camera" id="Wok-BH-WX7">
