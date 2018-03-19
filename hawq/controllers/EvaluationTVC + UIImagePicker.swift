@@ -11,7 +11,6 @@ import Photos
 
 extension EvaluationTVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
-
     func loadImagePickerController() {
         let actionSheet = UIAlertController(title: "Take a Photo", message: "Choose a source", preferredStyle: UIAlertControllerStyle.actionSheet)
         
@@ -61,7 +60,8 @@ extension EvaluationTVC: UIImagePickerControllerDelegate, UINavigationController
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         let image = info[UIImagePickerControllerOriginalImage] as! UIImage
-        imagePhotos.append(image)
+        let photoMedia = Media(mediaID: UUID().uuidString, mediaData: UIImagePNGRepresentation(image)!, mediaType: MediaType.photo)
+        photoList.append(photoMedia)
 
         // Reload the collection view to display new image
         collectionViewPhotos.reloadData()

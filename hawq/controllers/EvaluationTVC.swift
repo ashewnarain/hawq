@@ -41,9 +41,7 @@ class EvaluationTVC: UITableViewController {
     // Signature
     @IBOutlet weak var imgViewSignature: UIImageView!
     
-    //var appDelegate: AppDelegate!
-    //let evaluationMO: EvaluationMO?
-    var imagePhotos = [UIImage]()
+    var photoList = [Media]()
     var preAssessment: PreAssessment?
         
     override func viewDidLoad() {
@@ -71,7 +69,6 @@ class EvaluationTVC: UITableViewController {
     @IBAction func btnDoneTapped(_ sender: Any) {
         preAssessment = refreshEvaluation(evaluation: preAssessment!)
         CoreDataUtility.saveEvaluation(preAssessment: preAssessment!)
-        //self.presentingViewController?.dismiss(animated: true, completion: nil)
         self.navigationController?.popViewController(animated: true)
     }
     
@@ -134,6 +131,9 @@ class EvaluationTVC: UITableViewController {
         evaluation.facility.isFireExtinguisher = segFacilityFireExtinguisher.selectedSegmentIndex
         evaluation.facility.isFireDrills = segFacilityFireDrills.selectedSegmentIndex
         
+        //photos
+        evaluation.photos = photoList
+        
         return evaluation
     }
     
@@ -164,6 +164,8 @@ class EvaluationTVC: UITableViewController {
             if media.mediaType == MediaType.signature {
                 preAssessment!.signature = media
                 imgViewSignature.image = UIImage(data: media.mediaData)
+            } else {
+                photoList.append(media)
             }
         }
     }

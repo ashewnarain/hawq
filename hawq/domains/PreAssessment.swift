@@ -12,6 +12,7 @@ class PreAssessment: BaseEvaluation {
     var site: Site
     var facility: Facility
     var signature: Media?
+    var photos: [Media]?
     
     init(evaluator: Person) {
         site = Site()

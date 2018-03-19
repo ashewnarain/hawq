@@ -51,12 +51,6 @@ class CoreDataUtility {
         
         // save signature
         if let signature = preAssessment.signature {
-            if nil == evaluationMO?.media {
-                print("Saving NEW Signature...")
-                evaluationMO!.media = NSSet()
-            } else {
-                print("Updating existing Signature...")
-            }
             let mediaMO = MediaMO(context: context)
             mediaMO.mediaID = signature.mediaID
             mediaMO.creationDate = signature.creationDate
@@ -65,6 +59,19 @@ class CoreDataUtility {
             mediaMO.mediaName = signature.mediaName
             mediaMO.mediaType = signature.mediaType.rawValue
             evaluationMO!.addToMedia(mediaMO)
+        }
+        
+        if let photos = preAssessment.photos {
+            for photo in photos {
+                let mediaMO = MediaMO(context: context)
+                mediaMO.mediaID = photo.mediaID
+                mediaMO.creationDate = photo.creationDate
+                mediaMO.mediaData = photo.mediaData
+                mediaMO.mediaDescription = photo.mediaDescription
+                mediaMO.mediaName = photo.mediaName
+                mediaMO.mediaType = photo.mediaType.rawValue
+                evaluationMO!.addToMedia(mediaMO)
+            }
         }
         
         do {
