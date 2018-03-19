@@ -41,35 +41,13 @@ class EvaluationTVC: UITableViewController {
     // Signature
     @IBOutlet weak var imgViewSignature: UIImageView!
     
+    //var appDelegate: AppDelegate!
+    //let evaluationMO: EvaluationMO?
     var imagePhotos = [UIImage]()
-    
-    @IBAction func btnDoneTapped(_ sender: Any) {
-        let preAssessment = createEvaluation()
-        var dict = [String: PreAssessment]()
-        dict[preAssessment.type.rawValue] = preAssessment
-        let encodedData = try? JSONEncoder().encode(dict)
-        print("Form data size--> \(encodedData!)")
-        print("JSON value captured--> \(String(data: encodedData!, encoding: .utf8)!)")
+    var preAssessment: PreAssessment?
         
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let context = appDelegate.persistentContainer.viewContext
-        let entity = NSEntityDescription.entity(forEntityName: "Evaluation", in: context)
-        
-        let newEvaluation = NSManagedObject(entity: entity!, insertInto: context)
-        newEvaluation.setValue(NSDate(), forKey: "creationDate")
-        newEvaluation.setValue(encodedData, forKey: "form")
-        newEvaluation.setValue(preAssessment.id, forKey: "id")
-        newEvaluation.setValue(preAssessment.status.rawValue, forKey: "status")
-        newEvaluation.setValue(preAssessment.type.rawValue, forKey: "type")
-    
-        self.navigationController?.popViewController(animated: true)
-    }
-    
-    @IBAction func btnCameraAction(_ sender: Any) {
-        self.loadImagePickerController()
-    }
-    
     override func viewDidLoad() {
+        print("EvaluationTVC - viewDidLoad()")
         super.viewDidLoad()
         collectionViewPhotos.delegate = self
         collectionViewPhotos.dataSource = self
@@ -82,18 +60,52 @@ class EvaluationTVC: UITableViewController {
         
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imgViewSignatureTapped(tapGestureRecognizer:)))
         imgViewSignature.addGestureRecognizer(tapGestureRecognizer)
+        
+        if nil != preAssessment {
+            importEvaluation(evaluation: preAssessment!)
+        } else {
+            preAssessment = createEvaluation()
+        }
+    }
+    
+    @IBAction func btnDoneTapped(_ sender: Any) {
+        preAssessment = refreshEvaluation(evaluation: preAssessment!)
+        CoreDataUtility.saveEvaluation(preAssessment: preAssessment!)
+        //self.presentingViewController?.dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
+    }
+    
+    func createEvaluation()-> PreAssessment {
+        //TODO: load evaluator details here
+        let evaluator = Person(id: "ashewna", firstName: "Anthony", lastName: "Shewnarain", email: "anthony.shewnarain@gmail.com", phone: "917-805-0636")
+        let preAssessment =  PreAssessment(evaluator: evaluator)
+        print("Created NEW Evaluation - id=\(preAssessment.id)")
+        return preAssessment
+    }
+    
+    
+    @IBAction func btnCameraAction(_ sender: Any) {
+        self.loadImagePickerController()
     }
     
     @objc func imgViewSignatureTapped(tapGestureRecognizer: UITapGestureRecognizer)
     {
-        //let tappedImage = tapGestureRecognizer.view as! UIImageView
-        
-        // Your action
-        //self.navigationController?.pushViewController(signatureVC, animated: true)
-        
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let signatureVC = storyBoard.instantiateViewController(withIdentifier: "signatureVC") as! SignatureVC
-        self.present(signatureVC, animated: true, completion: nil)
+        self.navigationController?.present(signatureVC, animated: true) {
+            signatureVC.onReturn = { result in
+                if nil != self.preAssessment!.signature {
+                    print("Updating existing signature...")
+                    self.preAssessment!.signature!.creationDate = Date()
+                    self.preAssessment!.signature!.mediaData = result
+                } else {
+                    print("Created NEW signature...")
+                    self.preAssessment!.signature = Media(mediaID: UUID().uuidString, mediaData: result, mediaType: MediaType.signature)
+                }
+                
+                self.imgViewSignature.image = UIImage(data: result)
+            }
+        }
     }
     
     override func didReceiveMemoryWarning() {
@@ -101,116 +113,59 @@ class EvaluationTVC: UITableViewController {
         // Dispose of any resources that can be recreated.
     }
 
-    func createEvaluation()->PreAssessment {
-        let evaluator = Person(id: "ashewna", firstName: "Anthony", lastName: "Shewnarain", email: "anthony.shewnarain@gmail.com")
-        let site = Site()
-        site.name = txtSiteName.text
-        site.category = txtSiteCategory.text
-        let address = Address()
-        address.line1 = txtSiteAddressLine1.text
-        address.line2 = txtSiteAddressLine2.text
-        address.city = txtSiteCity.text
-        address.state = txtSiteState.text
-        address.zipCode = txtSiteZipCode.text
-        site.address = address
-        site.primaryNumber = txtSiteTelephone.text
-        let preAssessment = PreAssessment(evaluator: evaluator, site: site)
+    func refreshEvaluation(evaluation: PreAssessment)->PreAssessment {
+        evaluation.site.address.line1 = txtSiteAddressLine1.text
+        evaluation.site.address.line2 = txtSiteAddressLine2.text
+        evaluation.site.address.city = txtSiteCity.text
+        evaluation.site.address.state = txtSiteState.text
+        evaluation.site.address.zipCode = txtSiteZipCode.text
         
-        preAssessment.facilityHazardFree = segFacilityHazardFree.selectedSegmentIndex
-        preAssessment.facilityLighting = segFacilityLighting.selectedSegmentIndex
-        preAssessment.facilityClean = segFacilityClean.selectedSegmentIndex
-        preAssessment.facilityVentilation = segFacilityVentilation.selectedSegmentIndex
-        preAssessment.facilityCofoPosted = segFacilityCofoPosted.selectedSegmentIndex
-        preAssessment.facilityEmergencyExits = segFacilityEmergencyExits.selectedSegmentIndex
-        preAssessment.facilityFireExtinguisher = segFacilityFireExtinguisher.selectedSegmentIndex
-        preAssessment.facilityFireDrills = segFacilityFireDrills.selectedSegmentIndex
+        evaluation.site.name = txtSiteName.text
+        evaluation.site.category = txtSiteCategory.text
+        evaluation.site.primaryNumber = txtSiteTelephone.text
+        evaluation.site.representative = txtSiteRepresentative.text
         
-        return preAssessment
+        evaluation.facility.isHazardFree = segFacilityHazardFree.selectedSegmentIndex
+        evaluation.facility.isLighting = segFacilityLighting.selectedSegmentIndex
+        evaluation.facility.isClean = segFacilityClean.selectedSegmentIndex
+        evaluation.facility.isVentilation = segFacilityVentilation.selectedSegmentIndex
+        evaluation.facility.isCofoPosted = segFacilityCofoPosted.selectedSegmentIndex
+        evaluation.facility.isEmergencyExits = segFacilityEmergencyExits.selectedSegmentIndex
+        evaluation.facility.isFireExtinguisher = segFacilityFireExtinguisher.selectedSegmentIndex
+        evaluation.facility.isFireDrills = segFacilityFireDrills.selectedSegmentIndex
+        
+        return evaluation
     }
     
-    // MARK: - Table view data source
-
-//    override func numberOfSections(in tableView: UITableView) -> Int {
-//        // #warning Incomplete implementation, return the number of sections
-//        return 5
-//    }
-
-//    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        // #warning Incomplete implementation, return the number of rows
-//        return 3
-//    }
-    
-//    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-//        switch section {
-//        case 0:
-//            return "Supervisor Review"
-//        case 1:
-//            return "Evaluation"
-//        case 2:
-//            return "Photos"
-//        case 3:
-//            return "Survey"
-//        case 4:
-//            return "Signature"
-//        default:
-//            return nil
-//        }
-//        }
-
-    
-//    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = UITableViewCell()
-//
-//        // Configure the cell...
-//        cell.textLabel?.text = "This is row number \(indexPath.row)"
-//
-//        return cell
-//    }
- 
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
+    func importEvaluation(evaluation: PreAssessment) {
+        print("Loading evaluation - evaluationID=\(evaluation.id)")
+        txtSiteAddressLine1.text = evaluation.site.address.line1
+        txtSiteAddressLine2.text = evaluation.site.address.line2
+        txtSiteCity.text = evaluation.site.address.city
+        txtSiteState.text = evaluation.site.address.state
+        txtSiteZipCode.text = evaluation.site.address.zipCode
+        txtSiteName.text = evaluation.site.name
+        txtSiteCategory.text = evaluation.site.category
+        txtSiteTelephone.text = evaluation.site.primaryNumber
+        txtSiteRepresentative.text = evaluation.site.representative
+        
+        segFacilityHazardFree.selectedSegmentIndex = evaluation.facility.isHazardFree
+        segFacilityLighting.selectedSegmentIndex = evaluation.facility.isLighting
+        segFacilityClean.selectedSegmentIndex = evaluation.facility.isClean
+        segFacilityVentilation.selectedSegmentIndex = evaluation.facility.isVentilation
+        segFacilityCofoPosted.selectedSegmentIndex = evaluation.facility.isCofoPosted
+        segFacilityEmergencyExits.selectedSegmentIndex = evaluation.facility.isEmergencyExits
+        segFacilityFireExtinguisher.selectedSegmentIndex = evaluation.facility.isFireExtinguisher
+        segFacilityFireDrills.selectedSegmentIndex = evaluation.facility.isFireDrills
+        
+        //TODO: fetch photos and signature data - async?
+        let mediaList = CoreDataUtility.getEvaluationMedia(evaluationId: evaluation.id)
+        for media in mediaList {
+            if media.mediaType == MediaType.signature {
+                preAssessment!.signature = media
+                imgViewSignature.image = UIImage(data: media.mediaData)
+            }
+        }
     }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

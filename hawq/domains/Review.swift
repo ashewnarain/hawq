@@ -9,9 +9,9 @@
 import Foundation
 
 class Review: Codable {
-    var id: String
-    var date: Date
-    var status: String
+    let id: String
+    let date: Date
+    let status: String
     var comment: String?
     var reviewer: Person
     

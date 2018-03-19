@@ -11,33 +11,39 @@ import Foundation
 class Site: Codable {
     var name: String?
     var category: String?
-    var address: Address?
+    let address: Address
     var primaryNumber: String?
+    var representative: String?
     
-    init() {}
+    init() {
+        address = Address()
+    }
     
     private enum CodingKeys: String, CodingKey {
         case name
         case category
         case address
         case primaryNumber
+        case representative
     }
     
     func encode(to encoder: Encoder) throws
     {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(name, forKey: .name)
-        try container.encode(category, forKey: .category)
+        try container.encodeIfPresent(name, forKey: .name)
+        try container.encodeIfPresent(category, forKey: .category)
         try container.encode(address, forKey: .address)
-        try container.encode(primaryNumber, forKey: .primaryNumber)
+        try container.encodeIfPresent(primaryNumber, forKey: .primaryNumber)
+        try container.encodeIfPresent(representative, forKey: .representative)
     }
     
     required init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        name = try values.decode(String.self, forKey: .name)
+        name = try values.decodeIfPresent(String.self, forKey: .name)
         category = try values.decodeIfPresent(String.self, forKey: .category)
         address = try values.decode(Address.self, forKey: .address)
         primaryNumber = try values.decodeIfPresent(String.self, forKey: .primaryNumber)
+        representative = try values.decodeIfPresent(String.self, forKey: .representative)
     }
     
 }

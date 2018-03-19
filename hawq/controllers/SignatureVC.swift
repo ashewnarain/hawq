@@ -10,8 +10,10 @@ import UIKit
 
 class SignatureVC: UIViewController {
 
+    var onReturn:((_ result: Data) -> ())?
     private var path = UIBezierPath()
     private var startPoint = CGPoint()
+    var signatureData: Data?
     
     @IBOutlet weak var canvasView: UIView!
     
@@ -22,12 +24,17 @@ class SignatureVC: UIViewController {
     @IBAction func saveTapped(_ sender: Any) {
         let renderer = UIGraphicsImageRenderer(size: view.bounds.size)
         let image = renderer.image { ctx in
-            view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+            //view.drawHierarchy(in: view.subviews[0].bounds, afterScreenUpdates: true)
+            canvasView.drawHierarchy(in: canvasView.bounds, afterScreenUpdates: true)
         }
-        let signatureData = UIImagePNGRepresentation(image)?.base64EncodedString()
-        //save data here.
-        
-        self.dismiss(animated: true, completion: nil)
+        self.signatureData = UIImagePNGRepresentation(image)
+        //self.navigationController?.popViewController(animated: true)
+        self.dismiss(animated: true, completion: {
+            if let data = self.signatureData {
+                self.onReturn!(data)
+            }
+        })
+        //onReturn?(signatureData!.base64EncodedString())
     }
     
     @IBAction func clearTapped(_ sender: Any) {
@@ -79,7 +86,7 @@ class SignatureVC: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        AppDelegate.AppUtility.lockOrientation(.landscapeLeft, andRotateTo: .landscapeLeft)
+        AppDelegate.AppUtility.lockOrientation(.landscape, andRotateTo: .landscapeLeft)
         //AppDelegate.AppUtility.lockOrientation(.landscape)
     }
     

@@ -19,3 +19,7 @@ enum EvaluationPostingStatus: String {
 enum EvaluationStatus: String {
     case new, draft, complete
 }
+
+enum MediaType: String {
+    case signature, photo, video
+}

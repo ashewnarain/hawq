@@ -9,17 +9,19 @@
 import Foundation
 
 class BaseEvaluation: Codable {
-    final var id = UUID().uuidString
-    final var creationDate = Date()
-    var type: EvaluationType
+    final let id: String
+    final let creationDate: Date
+    let type: EvaluationType
     var status: EvaluationStatus = .new
-    var evaluator: Person
+    let evaluator: Person
     var reviews: [Review]?
     var postingStatus: EvaluationPostingStatus?
     var postingDate: Date?
     var postingConfirmationDate: Date?
     
     init(type: EvaluationType, evaluator: Person) {
+        self.id = UUID().uuidString
+        self.creationDate = Date()
         self.type = type
         self.evaluator = evaluator
     }
